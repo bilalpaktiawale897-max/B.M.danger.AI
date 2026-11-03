@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B.M.danger.AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#101525;color:white;
+ font-family:Arial,sans-serif;
+}
+header{
+ background:#19243b;padding:20px;
+ text-align:center;border-bottom:2px solid #3478ff;
+}
+header h2{margin:0;color:#62a0ff}
+header p{color:#aab8d0}
+main{max-width:650px;margin:auto;padding:18px}
+#chat{
+ height:65vh;overflow-y:auto;
+ background:#19243b;border-radius:15px;
+ padding:15px;
+}
+.msg{
+ padding:13px;margin:10px 0;
+ border-radius:12px;line-height:1.8;
+ white-space:pre-wrap;
+}
+.user{background:#2454a5;margin-right:35px}
+.bot{background:#29364e;margin-left:35px}
+.controls{display:flex;gap:8px;margin-top:15px}
+input{
+ flex:1;min-width:0;padding:15px;
+ border-radius:12px;border:1px solid #52617c;
+ background:#19243b;color:white;font-size:16px;
+}
+button{
+ background:#3478ff;color:white;border:0;
+ border-radius:12px;padding:14px;
+ font-size:16px;cursor:pointer;
+}
+#status{text-align:center;color:#aab8d0;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h2>🤖 B.M.danger.AI</h2>
+<p>ستاسو هوښیار مرستیال</p>
+</header>
+<main>
+<div id="chat">
+<div class="msg bot">
+سلام! زه B.M.danger.AI یم.
+څنګه درسره مرسته وکړم؟
+</div>
+</div>
+<p id="status">د AI سرور سره د نښلولو لپاره چمتو دی.</p>
+<div class="controls">
+<input id="question" placeholder="خپله پوښتنه ولیکئ..." />
+<button onclick="send()">لېږل</button>
+</div>
+</main>
+<script>
+async function send(){
+ const input=document.getElementById("question");
+ const chat=document.getElementById("chat");
+ const status=document.getElementById("status");
+ const q=input.value.trim();
+ if(!q)return;
+ chat.innerHTML+=`<div class="msg user"></div>`;
+ chat.lastElementChild.textContent=q;
+ input.value="";
+ status.textContent="ځواب لټول کېږي...";
+ try{
+ const response=await fetch("/api/chat",{
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({message:q})
+ });
+ if(!response.ok)throw new Error("Server error");
+ const data=await response.json();
+ chat.innerHTML+=`<div class="msg bot"></div>`;
+ chat.lastElementChild.textContent=data.reply;
+ status.textContent="چمتو دی";
+ }catch(e){
+ chat.innerHTML+=`<div class="msg bot"></div>`;
+ chat.lastElementChild.textContent=
+ "د AI سرور لا نه دی وصل شوی. د سرور جوړولو بل پړاو ته اړتیا ده.";
+ status.textContent="سرور ته اړتیا ده";
+ }
+ chat.scrollTop=chat.scrollHeight;
+}
+document.getElementById("question").addEventListener("keydown",e=>{
+ if(e.key==="Enter")send();
+});
+</script>
+</body>
+</html>
